@@ -1,7 +1,5 @@
 package com.example.paybitco;
 
-import java.io.InputStream;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -10,7 +8,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -18,21 +15,25 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.paybitco.webservice.WebserviceReader;
 
 public class SignupActivity extends Activity {
 
 	Context mContext;
 	WebserviceReader wr;
 	JSONObject country,countryInfo;
-	String cityName,countryName,countryCode,zipCode,phoneCode;
+	String cityName,countryName,countryCode,zipCode,phoneCode,currencyCode,addUSR,addBTC;
 	EditText edtCode,edtPhoneNo;
-	TextView tvLocation;
+	TextView tvLocation,tvWelcome;
 	TelephonyManager tm; 
 	String number;
+	ImageView ivFlag;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -41,6 +42,10 @@ public class SignupActivity extends Activity {
 		wr = new WebserviceReader();
 		
 		//UI Elements
+		ivFlag = (ImageView)findViewById(R.id.ivFlag);
+		
+		tvWelcome = (TextView)findViewById(R.id.tvWelcome); 
+				
 		edtCode = (EditText)findViewById(R.id.edtCode);
 		edtPhoneNo = (EditText)findViewById(R.id.edtPhoneNo);
 		
@@ -77,6 +82,7 @@ public class SignupActivity extends Activity {
 	class SignupTask extends AsyncTask<String, Void, JSONObject>
 	{
 		ProgressDialog loading=new ProgressDialog(mContext);
+		Bitmap flag;
 		@Override
 		protected void onPreExecute() {
 			// TODO Auto-generated method stub
@@ -88,8 +94,11 @@ public class SignupActivity extends Activity {
 		protected JSONObject doInBackground(String... params) {
 			// TODO Auto-generated method stub
 			JSONObject obj = wr.sendRequest(params[0]);
-			/*try {
+			
+			try {
 				country = new JSONObject(obj.getString("Country"));
+				addUSR = obj.getString("addUSR");
+				addBTC = obj.getString("addBTC");
 				countryInfo = new JSONObject(obj.getString("countryInfo"));
 				countryName = country.getString("countryName");
 				countryCode = country.getString("countryCode");
@@ -97,11 +106,12 @@ public class SignupActivity extends Activity {
 				cityName = country.getString("cityName");
 				zipCode = country.getString("zipCode");
 				phoneCode = countryInfo.getString("Phone");
+				currencyCode = countryInfo.getString("CurrencyCode"); 
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			new DownloadImageTask((ImageView) findViewById(R.id.ivFlag)).execute(CommonObject.baseUrl+"img/Flags/"+countryCode+".gif");*/
+			flag = wr.loadImage(CommonObject.baseUrl+"img/Flags/"+countryCode+".gif");
 			return obj;
 		}
 		@Override
@@ -109,33 +119,12 @@ public class SignupActivity extends Activity {
 			// TODO Auto-generated method stub
 			super.onPostExecute(result);
 			loading.cancel();
-			
+			tvWelcome.setVisibility(View.VISIBLE);
+			ivFlag.setImageBitmap(flag);
+			tvWelcome.setText("Once you confirm, we will transfer "+currencyCode+" "+addUSR+" equivalent to "+addBTC+" BTC to your account.");
 			edtCode.setText(phoneCode);
 			edtPhoneNo.setText(number);
 			tvLocation.setText(cityName+" "+zipCode+", "+countryName);
-		}
-		private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
-		    ImageView bmImage;
-		    public DownloadImageTask(ImageView bmImage) {
-		        this.bmImage = bmImage;
-		    }
-
-		    protected Bitmap doInBackground(String... urls) {
-		        String urldisplay = urls[0];
-		        Bitmap mIcon11 = null;
-		        try {
-		            InputStream in = new java.net.URL(urldisplay).openStream();
-		            mIcon11 = BitmapFactory.decodeStream(in);
-		        } catch (Exception e) {
-		            Log.e("Error", e.getMessage());
-		            e.printStackTrace();
-		        }
-		        return mIcon11;
-		    }
-
-		    protected void onPostExecute(Bitmap result) {
-		        bmImage.setImageBitmap(result);
-		    }
 		}
 	}
 	//Check network is available or not 

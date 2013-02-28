@@ -39,7 +39,7 @@
     <ImageView
         android:id="@+id/ivFlag"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="111dp"
         android:layout_below="@+id/tvLocation"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="13dp" />
@@ -51,9 +51,10 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/ivFlag"
         android:text="TextView"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="13dp"
         android:textColor="#CB4A48"
-        android:background="@drawable/warbg" />
+        android:background="@drawable/warbg"
+        android:visibility="gone" />
     
     <LinearLayout
         android:id="@+id/linearLayout1"
@@ -62,7 +63,7 @@
         android:layout_alignLeft="@+id/ivFlag"
         android:layout_alignRight="@+id/ivFlag"
         android:layout_below="@+id/tvWelcome"
-        android:layout_marginTop="26dp" >
+        android:layout_marginTop="13dp" >
 
         <EditText
             android:id="@+id/edtCode"
